@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:ECY}/hash_passwords.db",
+            "name": "hash_passwords"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
