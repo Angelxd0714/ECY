@@ -2,19 +2,27 @@ import flet as ft
 from body import body as bd
 from submodulesEste.add import Add
 
+class Main(ft.Page):
+    def __init__(self):
+        super().__init__()
+        
+        
+    def build(self):
+        self.title = "ECY"
+        self.window_width = 800
+        self.window_height = 500
+        self.window_maximizable = False
+        self.window_max_width = 800
+        raice = bd()
+        self.dialog = raice.esteganografia.box_main.dlg
+        
+        self.add(raice)
+        self.overlay.append(raice.esteganografia.box_main.file_picker_dialog_img)
+        self.overlay.append(raice.esteganografia.box_main.file_picker_dialog_text)
+        self.overlay.append(self.dialog)
+        self.update()
 
 
-def main(page: ft.Page):
-    page.title = "ECY"
-    page.window_width = 800
-    page.window_height = 500
-    page.window_maximizable = False
-    page.window_max_width = 800
-    
-    raice = bd() 
-    page.add(raice)
-    page.overlay.append(raice.esteganografia.box_main.file_picker_dialog_img)
-    page.overlay.append(raice.esteganografia.box_main.file_picker_dialog_text)
-    page.update() 
 
-ft.app(target=main,upload_dir="uploads")
+
+ft.app(target=Main.build,upload_dir="uploads")

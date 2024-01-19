@@ -1,15 +1,21 @@
 import flet as ft
 from .functions.hidden_img import hidden_img as img_hidden
 from submodulesEste.functions.password_generate import password_encrypt
-from submodulesEste.functions.type_embed import cifrar_texto_cbc
+from submodulesEste.functions.type_embed import cifrar_texto_cbc, cifrar_texto_ctr, cifrar_texto_ofb
 
 
 class Add(ft.UserControl):
     def __init__(self):
         super().__init__()
+
         self.selection_option_cbc = False
         self.selection_option_ofb = False
         self.selection_option_ctr = False
+        self.text_alert = ""
+        self.dlg = ft.AlertDialog(
+            title=ft.Text(self.text_alert), on_dismiss=lambda e: print("Dialog dismissed!")
+        )
+
         self.file_picker_dialog_img = ft.FilePicker(
             on_result=self.pick_files_result_img)
         self.file_picker_dialog_text = ft.FilePicker(
@@ -23,14 +29,14 @@ class Add(ft.UserControl):
             label="Nombrar archivo con respectiva extension", enable_suggestions=True)
         self.content_text = ""
         self.dropdown = ft.Dropdown(
-                                options=[
-                                    ft.dropdown.Option("CBC"),
-                                    ft.dropdown.Option("Green"),
-                                    ft.dropdown.Option("Blue"),
-                                ],
-                                width=100,
-                                on_focus=self.select_operation,
-                            )
+            options=[
+                ft.dropdown.Option("CBC"),
+                ft.dropdown.Option("OFB"),
+                ft.dropdown.Option("CTR"),
+            ],
+            width=100,
+            on_focus=self.select_operation,
+        )
 
     def pick_files_result_img(self, e: ft.FilePickerResultEvent):
         self.selected_files_img.value = (
@@ -76,14 +82,14 @@ class Add(ft.UserControl):
                     ft.Row(
                         controls=[
                             ft.Container(content=self.dropdown
-                            ), ft.Container(
+                                         ), ft.Container(
                                 content=self.password_encrypt)
                         ]
                     ),
                     ft.Row(
                         controls=[
                             ft.Container(content=ft.ElevatedButton(text="Guardar", on_click=lambda e: self.save(
-                                e), bgcolor=ft.colors.BLUE_400), width=200)
+                                e), bgcolor=ft.colors.BLUE_400, color=ft.colors.WHITE), width=200)
                         ],
                         alignment=ft.MainAxisAlignment.CENTER,
                     )
@@ -112,25 +118,76 @@ class Add(ft.UserControl):
 
     def embed_cbc(self):
         password = password_encrypt(self.password_encrypt.value)
-        key = cifrar_texto_cbc(self.content_text.value, password)
+        key = cifrar_texto_cbc(self.content_text, password)
+        img_hidden(key, self.selected_files_img.value, self.name_file.value)
+        print(self.content_text, self.selected_files_img.value,
+              self.selected_files_text.value, password)
+
+    def embed_ofb(self):
+        
+        password = password_encrypt(self.password_encrypt.value)
+        key = cifrar_texto_ofb(self.content_text, password)
+        img_hidden(key, self.selected_files_img.value, self.name_file.value)
+        print(self.content_text, self.selected_files_img.value,
+              self.selected_files_text.value, password)
+
+    def embed_ctr(self):
+        password = password_encrypt(self.password_encrypt.value)
+        key = cifrar_texto_ctr(self.content_text, password)
         img_hidden(key, self.selected_files_img.value, self.name_file.value)
         print(self.content_text, self.selected_files_img.value,
               self.selected_files_text.value, password)
 
     def select_operation(self, e):
         if e.control.value == "CBC":
-             self.selection_option_cbc = True
+            self.selection_option_cbc = True
+        elif e.control.value == "OFB":
+            self.selection_option_ofb = True
+        elif e.control.value == "CTR":
+            self.selection_option_ctr = True
         else:
             print("No selecciono ninguna opcion")
 
+    def open_alert(self, e,text):
+        self.text_alert = text
+        self.dlg.title = ft.Text(self.text_alert)
+        self.dlg.open = True
+        self.dlg.update()
+
     def save(self, e):
+
         if self.selection_option_cbc == True:
-            self.embed_cbc()
+            try:
+                self.embed_cbc()
+                self.selected_files_text.value = ""
+                self.selected_files_img.value = ""
+                self.name_file.value = ""
+                self.password_encrypt.value = ""
+                # Abre el cuadro de diálogo antes de la actualización
+                self.open_alert(e,"Se oculto la imagen")
+                self.update()
+            except:
+                self.open_alert(e,"hubo un error")
+        elif self.selection_option_ofb == True:
+            self.embed_ofb()
             self.selected_files_text.value = ""
             self.selected_files_img.value = ""
             self.name_file.value = ""
             self.password_encrypt.value = ""
+
+            self.open_alert(e)
+            self.update()
+        elif self.selection_option_ctr == True:
+            self.embed_ctr()
+            self.selected_files_text.value = ""
+            self.selected_files_img.value = ""
+            self.name_file.value = ""
+            self.password_encrypt.value = ""
+
+            self.open_alert(e)
             self.update()
         else:
             print("No selecciono ninguna opcion")
-            self.selection_option = False
+            self.selection_option_cbc = False
+            self.selection_option_ofb = False
+            self.selection_option_ctr = False

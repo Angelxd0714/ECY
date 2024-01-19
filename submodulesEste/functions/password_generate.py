@@ -28,7 +28,7 @@ def password_encrypt(password:str)->b64encode:
     print(salt)
     key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)
     print(key)
-    insert_password(key,salt)
+    insert_password(bytes(key),bytes(salt))
     
     return b64encode(key).decode('utf-8')
 
