@@ -1,4 +1,7 @@
 import flet as ft
+
+from DB.redis import save_password_redis
+from config.generate_key import generate_cipher_key
 from .functions.hidden_img import hidden_img as img_hidden
 from submodulesEste.functions.password_generate import password_encrypt
 from submodulesEste.functions.type_embed import cifrar_texto_cbc, cifrar_texto_ctr, cifrar_texto_ofb
@@ -48,7 +51,7 @@ class Add(ft.UserControl):
 
     def pick_files_result_text(self, e: ft.FilePickerResultEvent):
         self.selected_files_text.value = (
-            ", ".join(map(lambda f: f.name, e.files)
+            ", ".join(map(lambda f: f.path, e.files)
                       ) if e.files else "Cancelled!"
         )
         self.selected_files_text.update()
@@ -114,18 +117,28 @@ class Add(ft.UserControl):
                 self.content_text = self.content_text + line + "\n"
                 if not line:
                     break
-                print(line)
 
     def embed_cbc(self):
-        password = password_encrypt(self.password_encrypt.value)
-        key = cifrar_texto_cbc(self.content_text, password)
-        img_hidden(key, self.selected_files_img.value, self.name_file.value)
-        print(self.content_text, self.selected_files_img.value,
-              self.selected_files_text.value, password)
+        try: 
+            generate_cipher_key()
+           
+            password = password_encrypt(self.password_encrypt.value)
+          
+            self.open_read_txt()
+        
+            key = cifrar_texto_cbc(self.content_text, password)
+            
+            img_hidden(key, self.selected_files_img.value, self.name_file.value)
+        except Exception as e:
+            print(e)
+    
+            return None
+        
 
     def embed_ofb(self):
-        
+
         password = password_encrypt(self.password_encrypt.value)
+        self.open_read_txt()
         key = cifrar_texto_ofb(self.content_text, password)
         img_hidden(key, self.selected_files_img.value, self.name_file.value)
         print(self.content_text, self.selected_files_img.value,
@@ -133,6 +146,7 @@ class Add(ft.UserControl):
 
     def embed_ctr(self):
         password = password_encrypt(self.password_encrypt.value)
+        self.open_read_txt()
         key = cifrar_texto_ctr(self.content_text, password)
         img_hidden(key, self.selected_files_img.value, self.name_file.value)
         print(self.content_text, self.selected_files_img.value,
@@ -148,7 +162,7 @@ class Add(ft.UserControl):
         else:
             print("No selecciono ninguna opcion")
 
-    def open_alert(self, e,text):
+    def open_alert(self, e, text):
         self.text_alert = text
         self.dlg.title = ft.Text(self.text_alert)
         self.dlg.open = True
@@ -163,11 +177,13 @@ class Add(ft.UserControl):
                 self.selected_files_img.value = ""
                 self.name_file.value = ""
                 self.password_encrypt.value = ""
-                # Abre el cuadro de diálogo antes de la actualización
-                self.open_alert(e,"Se oculto la imagen")
+              
+                self.open_alert(e, "Se oculto la imagen")
                 self.update()
-            except:
-                self.open_alert(e,"hubo un error")
+               
+            except Exception as f:
+                self.open_alert(e, "hubo un error")
+                
         elif self.selection_option_ofb == True:
             self.embed_ofb()
             self.selected_files_text.value = ""
@@ -175,7 +191,7 @@ class Add(ft.UserControl):
             self.name_file.value = ""
             self.password_encrypt.value = ""
 
-            self.open_alert(e)
+            self.open_alert(e,"Se oculto la imagen")
             self.update()
         elif self.selection_option_ctr == True:
             self.embed_ctr()
@@ -184,7 +200,7 @@ class Add(ft.UserControl):
             self.name_file.value = ""
             self.password_encrypt.value = ""
 
-            self.open_alert(e)
+            self.open_alert(e,)
             self.update()
         else:
             print("No selecciono ninguna opcion")
