@@ -10,7 +10,11 @@ from DB.redis import save_password_redis
 
 
 
-def cifrar_texto_cbc(texto, clave):
+def cifrar_texto_cbc(texto, clave)-> bytes:
+    """
+    tipo de operacion cbc recibe
+    dos argumentos texto,clave
+    """
     try:
         # Generate a random 16-byte IV for CBC
         iv = os.urandom(16)
@@ -39,14 +43,18 @@ def cifrar_texto_cbc(texto, clave):
         return None
 
 
-def cifrar_texto_ofb(texto, clave):
+def cifrar_texto_ofb(texto, clave)-> bytes:
+    """
+    tipo de operacion ofb recibe
+    dos argumentos texto,clave
+    """
     try:
         # Generate a random 16-byte IV for CBC
         iv = os.urandom(16)
 
         # Convert the base64 encoded key to bytes
         mode = "OFB"
-        key_bytes = b64decode(clave)
+        key_bytes = b64decode(clave)[:32]
 
         # Construct an AES Cipher object with the given key and IV
         cipher = Cipher(algorithms.AES(key_bytes), modes.OFB(iv), backend=default_backend())
@@ -60,20 +68,24 @@ def cifrar_texto_ofb(texto, clave):
 
        
         ciphertext = encryptor.update(texto_padded) + encryptor.finalize()
-        
+        save_password_redis(clave,iv,mode)
         return ciphertext
     except Exception as e:
         print(e)
         return None
 
-def cifrar_texto_ctr(texto, clave):
+def cifrar_texto_ctr(texto, clave)-> bytes:
+    """
+    tipo de operacion ctr recibe
+    dos argumentos texto,clave
+    """
     try:
         # Generate a random 16-byte IV for CBC
         iv = os.urandom(16)
 
         # Convert the base64 encoded key to bytes
         mode = "CTR"
-        key_bytes = b64decode(clave)
+        key_bytes = b64decode(clave)[:32]
 
         # Construct an AES Cipher object with the given key and IV
         cipher = Cipher(algorithms.AES(key_bytes), modes.CTR(iv), backend=default_backend())
@@ -87,7 +99,7 @@ def cifrar_texto_ctr(texto, clave):
 
        
         ciphertext = encryptor.update(texto_padded) + encryptor.finalize()
-    
+        save_password_redis(clave,iv,mode)
         return ciphertext
     except Exception as e:
         print(e)

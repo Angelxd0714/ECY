@@ -4,6 +4,9 @@ from DB.redis import get_password_salt
 from submodulesEste.functions.show_message_img import  reveal_img, show_message
 
 class Exctract(ft.UserControl):
+    """
+    Aqui se carga la imagen encriptada y luego con la contraseña descripto el mensaje
+    """
     def __init__(self):
         super().__init__()
         self.text_alert = ""
@@ -50,7 +53,7 @@ class Exctract(ft.UserControl):
                     ft.Row(
                         controls=[
                             ft.Container(content=self.selected_files_text, width=500), ft.Container(
-                                content=ft.Icon(name=ft.icons.EXTENSION),margin=7)
+                                content=ft.IconButton(icon=ft.icons.EXTENSION,on_click=lambda e: self.borrar(e)),margin=7)
                         ],height=100
                     ),
                     ft.Row(
@@ -80,15 +83,31 @@ class Exctract(ft.UserControl):
             margin=ft.margin.all(10),
         )
     def extract(self, e):
+        """
+        aqui obtengo la contraseña, esta contraseña tiene una clave que se guarda en un archivo .ini
+        este la obtiene y compara, valida para que traiga el tipo de operacion y iv que un tipo de vaor aleatorio unico
+        """
         try:
             result = get_password_salt(self.password_encrypt.value)
             if result:
-                key, vi, mode = result      
+                key, vi, mode = result   
+                print(key, vi, mode)   
                 img = reveal_img(self.selected_files_img.value)
                 show = show_message(img, key, vi, mode)
+                
                 self.selected_files_text.value = show
+                
                 self.selected_files_text.update()
             else:
                 print("No se pudo obtener la contraseña.")
         except Exception as ex:
             print(f"Error en extract: {ex}")
+    def borrar(self,e):
+        """
+        Borra el contenido del campo de texto de la imagen seleccionada.
+        :param e: Evento de clic en el botón de extensión.
+        :return: None.
+        """
+        self.selected_files_img.value=""
+        self.selected_files_img.update()
+      

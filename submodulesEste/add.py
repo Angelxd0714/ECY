@@ -8,6 +8,9 @@ from submodulesEste.functions.type_embed import cifrar_texto_cbc, cifrar_texto_c
 
 
 class Add(ft.UserControl):
+    """
+    Aqui obtengo la url de imagen, el texto que quiero cifrar y la contraseña con la que se va a guardar
+    """
     def __init__(self):
         super().__init__()
 
@@ -79,7 +82,7 @@ class Add(ft.UserControl):
                     ft.Row(
                         controls=[
                             ft.Container(content=self.name_file, width=500), ft.Container(
-                                content=ft.IconButton(icon=ft.icons.TEXT_FIELDS, on_click=lambda e: print("send")))
+                                content=ft.Icon(name=ft.icons.EXTENSION),margin=7)
                         ]
                     ),
                     ft.Row(
@@ -111,6 +114,11 @@ class Add(ft.UserControl):
         )
 
     def open_read_txt(self):
+        """
+        aqui leo el archivo de texto y lo guardo en una variable para poder cifrarlo
+        :return:
+        
+        """
         with open(self.selected_files_text.value, "r") as f:
             while True:
                 line = f.readline()
@@ -119,6 +127,9 @@ class Add(ft.UserControl):
                     break
 
     def embed_cbc(self):
+        """
+        aqui genero la llave para cada operacion en este caso cbc y guardarlo en .ini para la contraseña y trigo la operacion de type_embed.py 
+        """
         try: 
             generate_cipher_key()
            
@@ -136,23 +147,33 @@ class Add(ft.UserControl):
         
 
     def embed_ofb(self):
-
+        """
+        aqui genero la llave para cada operacion en este caso ofb y guardarlo en .ini para la contraseña y trigo la operacion de type_embed.py 
+        """
+        generate_cipher_key()
         password = password_encrypt(self.password_encrypt.value)
         self.open_read_txt()
         key = cifrar_texto_ofb(self.content_text, password)
         img_hidden(key, self.selected_files_img.value, self.name_file.value)
-        print(self.content_text, self.selected_files_img.value,
-              self.selected_files_text.value, password)
+      
 
     def embed_ctr(self):
+        """
+        aqui genero la llave para cada operacion en este caso ctr y guardarlo en .ini para la contraseña y trigo la operacion de type_embed.py 
+        """
+        generate_cipher_key()
         password = password_encrypt(self.password_encrypt.value)
         self.open_read_txt()
         key = cifrar_texto_ctr(self.content_text, password)
         img_hidden(key, self.selected_files_img.value, self.name_file.value)
-        print(self.content_text, self.selected_files_img.value,
-              self.selected_files_text.value, password)
+     
 
     def select_operation(self, e):
+        """
+        selecciona la operacion a realizar
+        :param e:
+        :return:
+        """
         if e.control.value == "CBC":
             self.selection_option_cbc = True
         elif e.control.value == "OFB":
@@ -163,13 +184,19 @@ class Add(ft.UserControl):
             print("No selecciono ninguna opcion")
 
     def open_alert(self, e, text):
+        """
+        genera un alert cuando completa una operacion o hay un error
+        """
         self.text_alert = text
         self.dlg.title = ft.Text(self.text_alert)
         self.dlg.open = True
         self.dlg.update()
 
     def save(self, e):
-
+        """
+        aqui dependiendo de la seleccion hara una operacion distinta
+        
+        """
         if self.selection_option_cbc == True:
             try:
                 self.embed_cbc()
@@ -200,7 +227,7 @@ class Add(ft.UserControl):
             self.name_file.value = ""
             self.password_encrypt.value = ""
 
-            self.open_alert(e,)
+            self.open_alert(e,"Se oculto la imagen")
             self.update()
         else:
             print("No selecciono ninguna opcion")

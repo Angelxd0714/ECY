@@ -1,9 +1,11 @@
 import flet as ft
-import asyncio
 from menu import menu
 from esteganografia import Esteganografia
 
 class body(ft.UserControl):
+    """
+    Clase que contiene el cuerpo de la aplicacion
+    """
     def __init__(self):
         super().__init__()
         self.menu = menu(self)
@@ -48,3 +50,4 @@ class body(ft.UserControl):
             self.body_content_default.controls = self.body_content_ecry.controls
 
         self.update()
+

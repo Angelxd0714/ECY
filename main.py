@@ -1,13 +1,21 @@
 import flet as ft
 from body import body as bd
 from submodulesEste.add import Add
+from submodulesEste.functions.file import create_directory
 
 
 class Main(ft.Page):
+    """
+    Aqui se crea la ventana principal de la aplicacion.
+    """
     def __init__(self):
         super().__init__()
 
     def build(self):
+        """
+        Construye la ventana principal de la aplicacion.
+        :return: None.
+        """
         self.title = "ECY"
         self.window_width = 800
         self.window_height = 500
@@ -26,6 +34,7 @@ class Main(ft.Page):
         self.overlay.append(
             raice.esteganografia.ext_main.file_picker_dialog_img)
         self.overlay.append(self.dialog_ext)
+        create_directory()
         self.update()
 
 if __name__ == "__main__":

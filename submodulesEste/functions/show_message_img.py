@@ -7,7 +7,7 @@ from base64 import b64decode
 from PIL import Image
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-import os
+
 
 
 def show_message(texto_cifrado, clave, iv=None, mode=None):
@@ -36,7 +36,7 @@ def show_message(texto_cifrado, clave, iv=None, mode=None):
             return decrypted_text.decode('utf-8', errors='replace').strip()
         elif mode == "OFB":
 
-            clave = b64decode(clave)
+            clave = b64decode(clave)[:32]
 
             # Convierte la clave y el IV de hexadecimal a bytes
             cipher = Cipher(algorithms.AES(clave), modes.OFB(
@@ -52,10 +52,10 @@ def show_message(texto_cifrado, clave, iv=None, mode=None):
             # Devuelve el texto descifrado
             return decrypted_text.decode('utf-8', errors='replace')
         elif mode == "CTR":
-            clave = b64decode(clave)
+            clave = b64decode(clave)[:32]
 
             # Convierte la clave y el IV de hexadecimal a bytes
-            cipher = Cipher(algorithms.AES(clave), modes.OFB(
+            cipher = Cipher(algorithms.AES(clave), modes.CTR(
                 iv), backend=default_backend())
 
             # Crea un objeto de descifrado
